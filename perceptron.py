@@ -6,13 +6,19 @@ import numpy as np
 
 
 def obtain_o(x,w):
+    result = []
     for i in range(len(w)):
-       result = np.sign(np.dot(x[i],w[i]))  
-    
+        result.append(np.sign(np.dot(x[i],w[i])))
     return result
 
 def obtain_w(w,alpha,t,o,x):
-    pass
+    weights = []
+    for i in range(len(w)):
+        result = w[i]+alpha*(t[i]-o[i])*x[i]
+        weights.append(result)
+    print(weights)
+    return weights
+
     
 
 def main():
@@ -32,6 +38,7 @@ def main():
 
     #define learning rate, t, and vector x
     alpha = data[len(data)-1]
+    alpha = np.array(alpha)
     t = data[len(data)-2]
     x = data[:-2]
 
@@ -43,11 +50,19 @@ def main():
     
     weights = np.array(weights).transpose()
     x = np.array(x).transpose()
-    
-    print(weights)
-    print(x)
+    t = np.array(t).transpose()
 
-    obtain_o(x,weights)
+    o = obtain_o(x,weights)
+    o = np.array(o).transpose()
+
+    print(o)
+    #print(x)
+    #print(t)
+    #print(o)
+
+    w2 = obtain_w(weights,alpha,t,o,x)
+    
+
 
 
 main()
