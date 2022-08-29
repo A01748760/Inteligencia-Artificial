@@ -2,6 +2,7 @@
 # Date: 25/08/2022
 # Program that creates a perceptron using the sign activation funcion and the gradient descent rule 
 
+from turtle import pen
 import numpy as np
 
 
@@ -16,7 +17,6 @@ def obtain_w(w,alpha,t,o,x):
     for i in range(len(w)):
         result = w[i]+alpha*(t[i]-o[i])*x[i]
         weights.append(result)
-    print(weights)
     return weights
 
     
@@ -49,20 +49,28 @@ def main():
         weights.append(weights2)
     
     weights = np.array(weights).transpose()
+    #print(f'{"PESOS":=^60}\n {weights}')
     x = np.array(x).transpose()
     t = np.array(t).transpose()
 
     o = obtain_o(x,weights)
     o = np.array(o).transpose()
 
-    print(o)
-    #print(x)
-    #print(t)
-    #print(o)
 
     w2 = obtain_w(weights,alpha,t,o,x)
+
+    o = o.tolist()
+    t = t.tolist()
+
+    while o != t:
+        weights = np.array(w2)
+        t = np.array(t)
+        o = obtain_o(x,weights)
+        
+        t = t.tolist()
+    print(f'{"ENTRADAS":=^60}\n {x}')
+    print(f'{"VALORES ESPERADOS":=^60}\n {t}')
+    print(f'{"VALORES CALCULADOS":=^60}\n {o}')
     
-
-
 
 main()
