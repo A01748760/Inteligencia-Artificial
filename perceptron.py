@@ -2,29 +2,39 @@
 # Date: 25/08/2022
 # Program that creates a perceptron using the sign activation funcion and the gradient descent rule 
 
-from turtle import pen
+import random
+from wave import Wave_write
 import numpy as np
 
 
 def obtain_o(x,w):
     result = []
-    for i in range(len(w)):
-        result.append(np.sign(np.dot(x[i],w[i])))
+    #print(f'{"x":=^60}')
+    #print(x)
+    for i in range(len(x)):
+    #for i in range(x.shape[1]):
+        result.append(np.sign(np.dot(x[i],w)))
     return result
 
+
 def obtain_w(w,alpha,t,o,x):
-    weights = []
-    for i in range(len(w)):
-        result = w[i]+alpha*(t[i]-o[i])*x[i]
-        weights.append(result)
-    return weights
+    
+    #print(f'w{w}')
+    #print(f'o{o}')
+    for i in range(len(x)):
+        w = w+alpha*(t[i]-o[i])*x[i]
+
+    print(f'w{w}')
+
+    return w
 
     
 
 def main():
+    #nTraining = int(input('Training data percentage: ')) 
     data = []
     weights = []
-    with open("inputs.txt",'r') as file:
+    with open("inputs2.txt",'r') as file:
         for line in file:
             vector = line.strip().split(',')
             data.append(vector)
@@ -38,39 +48,59 @@ def main():
 
     #define learning rate, t, and vector x
     alpha = data[len(data)-1]
+    data.pop()
     alpha = np.array(alpha)
-    t = data[len(data)-2]
-    x = data[:-2]
+    
+    #shuffle inputs
+    #print(f'{"x":=^60}')
+    data = np.array(data).transpose()
+    np.random.shuffle(data)
+    data = data.transpose()
+
+    t = data[len(data)-1]
+    x = data[:-1]
+    
 
     # set the initial weights to a value near to 0
-    weights2 = [0.1 for i in range(0, len(x[0]))]
+    weights = [0.1 for i in range(0, len(x))] 
     
-    for i in range (0, len(data)-2):
-        weights.append(weights2)
-    
+    '''for i in range (0, len(data)-2):
+        weights.append(weights2)'''
     weights = np.array(weights).transpose()
     #print(f'{"PESOS":=^60}\n {weights}')
-    x = np.array(x).transpose()
-    t = np.array(t).transpose()
-
+    x = np.array(x)
+    t = np.array(t)
+    x = x.transpose()
+    '''print(f't{t.shape}')
+    print(f't matriz{t}')
+    print(f'x{x.shape}')
+    print(f'weights{weights.shape}')
+    '''
     o = obtain_o(x,weights)
-    o = np.array(o).transpose()
-
-
-    w2 = obtain_w(weights,alpha,t,o,x)
-
+    o = np.array(o)
+    
+    #w2 = obtain_w(weights,alpha,t,o,x)
+    
+    
     o = o.tolist()
     t = t.tolist()
 
+    
     while o != t:
-        weights = np.array(w2)
+        weights = np.array(obtain_w(weights,alpha,t,o,x))
+        
         t = np.array(t)
         o = obtain_o(x,weights)
         
+        
         t = t.tolist()
+        o=np.array(o)
+        o = o.tolist()
+        #print(weights)
     print(f'{"ENTRADAS":=^60}\n {x}')
     print(f'{"VALORES ESPERADOS":=^60}\n {t}')
     print(f'{"VALORES CALCULADOS":=^60}\n {o}')
+    print(f'{"PESOS":=^60}\n {weights}')
     
 
 main()
