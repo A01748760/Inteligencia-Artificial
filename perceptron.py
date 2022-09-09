@@ -24,11 +24,14 @@ def obtain_w(w,alpha,t,o,x):
     for i in range(len(x)):
         w = w+alpha*(t[i]-o[i])*x[i]
 
-    print(f'w{w}')
 
     return w
 
-    
+def getError(o, test):
+    o = np.array(o)
+    test = np.array(test)
+    accuracy = (o == test).sum()/len(test)
+    return accuracy*100
 
 def main():
     #nTraining = int(input('Training data percentage: ')) 
@@ -85,8 +88,12 @@ def main():
     o = o.tolist()
     t = t.tolist()
 
+    dictW = dict()
+
+    if str(weights) not in dictW:
+        dictW[str(weights)]=1
     
-    while o != t:
+    while o != t and dictW[str(weights)]<21:
         weights = np.array(obtain_w(weights,alpha,t,o,x))
         
         t = np.array(t)
@@ -96,11 +103,20 @@ def main():
         t = t.tolist()
         o=np.array(o)
         o = o.tolist()
+        if str(weights) not in dictW:
+            dictW[str(weights)]=1
+        else:
+            dictW[str(weights)]+=1
+    
         #print(weights)
+    precision = getError(o,t)
     print(f'{"ENTRADAS":=^60}\n {x}')
+    print(f'{"COEFICIENTE DE APRENDIZAJE":=^60}\n {alpha}')
     print(f'{"VALORES ESPERADOS":=^60}\n {t}')
     print(f'{"VALORES CALCULADOS":=^60}\n {o}')
     print(f'{"PESOS":=^60}\n {weights}')
+    print(f'{"DICCIONARIO DE PESOS":=^60}\n{dictW}')
+    print(f'{"PRECISIÓN":=^60}\n{precision}%')
     
 
 main()
