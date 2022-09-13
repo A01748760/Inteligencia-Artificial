@@ -3,17 +3,22 @@
 # Program that creates a perceptron using the sign activation funcion and the gradient descent rule 
 
 import random
-from wave import Wave_write
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.metrics import mean_squared_error
 
 
 def obtain_o(x,w):
+    print(f"X:   {x}")
+    print(f"W:   {w}")
     result = []
     #print(f'{"x":=^60}')
     #print(x)
-    for i in range(len(x)):
+    for i in range(x.shape[0]):
     #for i in range(x.shape[1]):
         result.append(np.sign(np.dot(x[i],w)))
+        print(result)
     return result
 
 
@@ -27,77 +32,60 @@ def obtain_w(w,alpha,t,o,x):
 
     return w
 
-def getError(o, test):
-    o = np.array(o)
-    test = np.array(test)
-    accuracy = (o == test).sum()/len(test)
-    return accuracy*100
+def getError(finalO, testT):
+    return mean_squared_error(testT,finalO)
+
+def graph(predict,real):
+    plt.plot(real, label='Real')
+    plt.plot(predict, label='Predction')
+    plt.legend()
+    plt.show()
 
 def main():
-    #nTraining = int(input('Training data percentage: ')) 
+    pTraining = int(input('Training data percentage: ')) 
+    alpha = float(input("Alpha: "))
     data = []
     weights = []
-    with open("inputs2.txt",'r') as file:
-        for line in file:
-            vector = line.strip().split(',')
-            data.append(vector)
+    data = pd.read_csv('Test5.csv')
+    data.replace(0,-1)
     
-    #cast strings into floats
-    for i in data:
-        for j in range(0, len(i)):
-            i[j] = float(i[j])
-            if i[j] == 0.0:
-                i[j] = -1
+    pTraining = pTraining/100
+    nTraining = int(np.floor(data.shape[0]*pTraining) )
 
-    #define learning rate, t, and vector x
-    alpha = data[len(data)-1]
-    data.pop()
-    alpha = np.array(alpha)
-    
-    #shuffle inputs
-    #print(f'{"x":=^60}')
-    data = np.array(data).transpose()
-    np.random.shuffle(data)
-    data = data.transpose()
+    #shuffle data
+    data = data.sample(frac=1).reset_index(drop=True)
+    t = data.iloc[:,-1:]
+    data = data.drop(t,axis=1)
 
-    t = data[len(data)-1]
-    x = data[:-1]
-    
+    #split train and test data
+    xTrain = data.iloc[:nTraining]
+    xTest = data.iloc[nTraining:]
 
+    xTrain = np.array(xTrain)
+    xTest = np.array(xTest)
+   
     # set the initial weights to a value near to 0
-    weights = [0.1 for i in range(0, len(x))] 
-    
-    '''for i in range (0, len(data)-2):
-        weights.append(weights2)'''
-    weights = np.array(weights).transpose()
-    #print(f'{"PESOS":=^60}\n {weights}')
-    x = np.array(x)
+    weights = pd.Series([0.1] * (xTrain.shape[1]))
+    weights = np.array(weights)
     t = np.array(t)
-    x = x.transpose()
-    '''print(f't{t.shape}')
-    print(f't matriz{t}')
-    print(f'x{x.shape}')
-    print(f'weights{weights.shape}')
-    '''
-    o = obtain_o(x,weights)
+    
+    o = obtain_o(xTrain,weights)
     o = np.array(o)
-    
-    #w2 = obtain_w(weights,alpha,t,o,x)
-    
+    print(o)
     
     o = o.tolist()
     t = t.tolist()
 
     dictW = dict()
-
+   
     if str(weights) not in dictW:
         dictW[str(weights)]=1
     
     while o != t and dictW[str(weights)]<21:
-        weights = np.array(obtain_w(weights,alpha,t,o,x))
+        weights = np.array(obtain_w(weights,alpha,t,o,xTrain))
         
         t = np.array(t)
-        o = obtain_o(x,weights)
+        o = obtain_o(xTrain,weights)
         
         
         t = t.tolist()
@@ -108,15 +96,19 @@ def main():
         else:
             dictW[str(weights)]+=1
     
-        #print(weights)
-    precision = getError(o,t)
-    print(f'{"ENTRADAS":=^60}\n {x}')
+    #print(testT)
+    #print(list(dictW.keys())[-1])
+    #oFinal = obtain_o(testT,list(dictW.keys())[-1])
+    #print(oFinal)
+    #precision = getError(oFinal,len(xTest)-1)
+    print(f'{"ENTRADAS":=^60}\n {xTrain}')
     print(f'{"COEFICIENTE DE APRENDIZAJE":=^60}\n {alpha}')
     print(f'{"VALORES ESPERADOS":=^60}\n {t}')
     print(f'{"VALORES CALCULADOS":=^60}\n {o}')
     print(f'{"PESOS":=^60}\n {weights}')
     print(f'{"DICCIONARIO DE PESOS":=^60}\n{dictW}')
-    print(f'{"PRECISIÓN":=^60}\n{precision}%')
+    #print(f'{"PRECISIÓN":=^60}\n{precision}%')
+    graph(o,t)
     
 
 main()
